@@ -10,6 +10,8 @@
                 <header>
                     <button name="action_confirm" string="Подтвердить" type="object"
                             class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_preview_pdf" string="Предпросмотр PDF" type="object"
+                            class="btn-secondary" invisible="state == 'draft'"/>
                     <button name="action_send_email" string="Отправить по email" type="object"
                             class="btn-secondary" invisible="state not in ('confirmed', 'sent')"/>
                     <button name="action_export_sbis" string="Экспорт в СБИС" type="object"

@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_invoice" model="ir.actions.report">
+        <field name="name">Счёт на оплату</field>
+        <field name="model">jkh.invoice</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">jkh_services.report_invoice_template</field>
+        <field name="report_file">jkh_services.report_invoice_template</field>
+        <field name="print_report_name">'Счёт_' + object.name.replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_jkh_invoice"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_invoice_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; color:#1a1a2e; background:#fff; position:relative;">
+
+                    <style>
+                        .inv-watermark { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:72px; font-weight:900; color:rgba(26,39,68,0.04); letter-spacing:6px; text-transform:uppercase; pointer-events:none; white-space:nowrap; z-index:0; }
+                        .inv-header { background:#1a2744; padding:0; overflow:hidden; }
+                        .inv-header-top { padding:24px 36px 16px; display:table; width:100%; }
+                        .inv-header-left { display:table-cell; vertical-align:top; }
+                        .inv-header-right { display:table-cell; text-align:right; vertical-align:top; }
+                        .inv-logo-box { width:48px; height:48px; background:#4a90d9; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; color:#fff; vertical-align:middle; margin-right:12px; }
+                        .inv-company-name { font-size:18px; font-weight:700; color:#fff; vertical-align:middle; }
+                        .inv-company-sub { font-size:10px; color:#a8bcd4; margin-top:2px; }
+                        .inv-num-label { font-size:10px; color:#a8bcd4; text-transform:uppercase; letter-spacing:1px; }
+                        .inv-num { font-size:32px; font-weight:900; color:#fff; line-height:1; }
+                        .inv-date { font-size:11px; color:#a8bcd4; margin-top:4px; }
+                        .inv-status-bar { background:#4a90d9; padding:8px 36px; }
+                        .inv-status-items { display:table; width:100%; }
+                        .inv-status-item { display:table-cell; font-size:9px; color:#d0e4f7; text-transform:uppercase; letter-spacing:0.8px; }
+                        .inv-status-val { font-size:11px; font-weight:700; color:#fff; }
+                        .inv-accent { height:4px; background:linear-gradient(90deg,#4a90d9 0%,#1a2744 100%); }
+                        .inv-body { padding:24px 36px; position:relative; z-index:1; }
+                        .inv-parties { display:table; width:100%; border-collapse:collapse; margin-bottom:20px; }
+                        .inv-party-cell { display:table-cell; width:50%; vertical-align:top; }
+                        .inv-party-box { padding:14px 18px; border-radius:6px; height:100%; }
+                        .inv-party-seller { background:#f8faff; border:1px solid #e0e6f0; }
+                        .inv-party-buyer { background:#fff; border:1px solid #e0e6f0; border-left:none; }
+                        .inv-party-role { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:5px; }
+                        .inv-party-name { font-size:13px; font-weight:700; color:#1a2744; margin-bottom:5px; line-height:1.3; }
+                        .inv-party-detail { font-size:10px; color:#6b7a99; line-height:1.7; }
+                        .inv-party-detail b { color:#1a2744; }
+                        .inv-bank-box { background:#f0f4ff; border-radius:6px; padding:12px 18px; margin-bottom:20px; }
+                        .inv-bank-title { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:8px; }
+                        .inv-bank-grid { display:table; width:100%; }
+                        .inv-bank-cell { display:table-cell; width:33%; font-size:10px; color:#3d5080; }
+                        .inv-bank-label { font-size:8px; color:#9aaccc; text-transform:uppercase; letter-spacing:0.5px; }
+                        .inv-bank-val { font-weight:700; color:#1a2744; font-size:11px; }
+                        .inv-section { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:8px; border-bottom:2px solid #4a90d9; padding-bottom:4px; display:inline-block; }
+                        .inv-tbl { width:100%; border-collapse:collapse; font-size:10px; margin-bottom:0; }
+                        .inv-tbl thead tr { background:#1a2744; }
+                        .inv-tbl thead th { padding:9px 10px; font-size:9px; font-weight:600; letter-spacing:0.3px; color:#fff; border:none; text-transform:uppercase; }
+                        .inv-tbl tbody tr { border-bottom:1px solid #eef1f8; }
+                        .inv-tbl tbody tr:nth-child(even) { background:#f8faff; }
+                        .inv-tbl tbody td { padding:9px 10px; color:#2d3748; border:none; vertical-align:middle; }
+                        .inv-tbl tfoot td { padding:10px; border:none; }
+                        .inv-totals-wrap { display:table; width:100%; margin-top:16px; }
+                        .inv-totals-note { display:table-cell; width:55%; vertical-align:top; padding-right:20px; }
+                        .inv-totals-box { display:table-cell; width:45%; vertical-align:top; }
+                        .inv-totals-inner { background:#f8faff; border-radius:8px; padding:18px 22px; border-left:4px solid #4a90d9; }
+                        .inv-totals-row { display:table; width:100%; padding:4px 0; border-bottom:1px solid #eef1f8; }
+                        .inv-totals-lbl { display:table-cell; font-size:10px; color:#6b7a99; }
+                        .inv-totals-val { display:table-cell; text-align:right; font-size:10px; color:#1a2744; font-weight:600; }
+                        .inv-total-final { display:table; width:100%; padding:12px 0 4px; margin-top:4px; }
+                        .inv-total-lbl { display:table-cell; font-size:14px; font-weight:800; color:#1a2744; }
+                        .inv-total-val { display:table-cell; text-align:right; font-size:20px; font-weight:900; color:#4a90d9; }
+                        .inv-stamp-area { margin-top:32px; display:table; width:100%; border-collapse:collapse; }
+                        .inv-stamp-cell { display:table-cell; width:50%; padding:18px 22px; vertical-align:top; }
+                        .inv-stamp-cell-l { background:#f8faff; border:1px solid #e0e6f0; border-right:2px dashed #c0ccdd; border-radius:6px 0 0 6px; }
+                        .inv-stamp-cell-r { background:#fff; border:1px solid #e0e6f0; border-radius:0 6px 6px 0; }
+                        .inv-stamp-role { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#4a90d9; margin-bottom:3px; }
+                        .inv-stamp-name { font-size:12px; font-weight:700; color:#1a2744; margin-bottom:14px; }
+                        .inv-stamp-line { border-bottom:1px solid #1a2744; height:32px; }
+                        .inv-stamp-hint { font-size:8px; color:#b0bcc8; text-align:center; margin-top:3px; }
+                        .inv-stamp-mp { font-size:8px; color:#9aaccc; margin-top:8px; font-style:italic; }
+                        .inv-footer { background:#1a2744; color:#a8bcd4; font-size:8px; padding:8px 36px; text-align:center; letter-spacing:0.5px; margin-top:28px; }
+                        .text-right { text-align:right; }
+                        .text-center { text-align:center; }
+                        .badge-paid { display:inline-block; background:#27ae60; color:#fff; font-size:9px; font-weight:700; padding:3px 10px; border-radius:12px; letter-spacing:0.5px; }
+                        .badge-sent { display:inline-block; background:#4a90d9; color:#fff; font-size:9px; font-weight:700; padding:3px 10px; border-radius:12px; }
+                        .badge-draft { display:inline-block; background:#f39c12; color:#fff; font-size:9px; font-weight:700; padding:3px 10px; border-radius:12px; }
+                    </style>
+
+                    <!-- ВОДЯНОЙ ЗНАК -->
+                    <t t-if="o.state == 'paid'">
+                        <div class="inv-watermark">ОПЛАЧЕНО</div>
+                    </t>
+
+                    <!-- ШАПКА -->
+                    <div class="inv-header">
+                        <table style="width:100%; border-collapse:collapse; padding:24px 36px 16px;">
+                            <tr>
+                                <td style="vertical-align:top; padding:24px 36px 16px;">
+                                    <!-- Логотип-буква + название -->
+                                    <table style="border-collapse:collapse;">
+                                        <tr>
+                                            <td style="vertical-align:middle; padding-right:14px;">
+                                                <div style="width:50px; height:50px; background:#4a90d9; border-radius:12px; text-align:center; line-height:50px; font-size:24px; font-weight:900; color:#fff;">
+                                                    <t t-esc="(o.company_id.name or 'C')[0].upper()"/>
+                                                </div>
+                                            </td>
+                                            <td style="vertical-align:middle;">
+                                                <div style="font-size:18px; font-weight:700; color:#fff;"><t t-esc="o.company_id.name"/></div>
+                                                <div style="font-size:10px; color:#a8bcd4; margin-top:2px;">
+                                                    ИНН: <t t-esc="o.company_id.vat or '—'"/>
+                                                    <t t-if="o.company_id.partner_id and o.company_id.partner_id.get('kpp', False)">
+                                                        &#160;&#160;КПП: <t t-esc="o.company_id.partner_id.kpp"/>
+                                                    </t>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="text-align:right; vertical-align:top; padding:24px 36px 16px;">
+                                    <div style="font-size:10px; color:#a8bcd4; text-transform:uppercase; letter-spacing:1px;">Счёт на оплату</div>
+                                    <div style="font-size:36px; font-weight:900; color:#fff; line-height:1.1;">
+                                        &#8470;&#160;<t t-esc="o.name"/>
+                                    </div>
+                                    <div style="font-size:11px; color:#a8bcd4; margin-top:4px;">
+                                        от <t t-esc="o.date" t-options='{"widget":"date"}'/>
+                                        <t t-if="o.date_due">
+                                            &#160;&#160;&#183;&#160;&#160;
+                                            Оплатить до: <strong style="color:#f39c12;"><t t-esc="o.date_due" t-options='{"widget":"date"}'/></strong>
+                                        </t>
+                                    </div>
+                                    <div style="margin-top:8px;">
+                                        <t t-if="o.state == 'paid'"><span class="badge-paid">&#10003; ОПЛАЧЕН</span></t>
+                                        <t t-elif="o.state == 'sent'"><span class="badge-sent">ОТПРАВЛЕН</span></t>
+                                        <t t-elif="o.state == 'confirmed'"><span class="badge-draft">ВЫСТАВЛЕН</span></t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Синяя полоса-статусбар -->
+                        <div style="background:#4a90d9; padding:8px 36px;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td style="font-size:9px; color:#d0e4f7; text-transform:uppercase; letter-spacing:0.8px;">
+                                        Договор
+                                        <div style="font-size:11px; font-weight:700; color:#fff;">
+                                            &#8470; <t t-esc="o.contract_number or 'б/н'"/>
+                                            <t t-if="o.contract_date">
+                                                от <t t-esc="o.contract_date" t-options='{"widget":"date"}'/>
+                                            </t>
+                                        </div>
+                                    </td>
+                                    <td style="font-size:9px; color:#d0e4f7; text-transform:uppercase; letter-spacing:0.8px; text-align:center;">
+                                        Сумма к оплате
+                                        <div style="font-size:14px; font-weight:900; color:#fff;">
+                                            <t t-esc="o.amount_total" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                        </div>
+                                    </td>
+                                    <td style="font-size:9px; color:#d0e4f7; text-transform:uppercase; letter-spacing:0.8px; text-align:right;">
+                                        Позиций
+                                        <div style="font-size:14px; font-weight:700; color:#fff;"><t t-esc="len(o.line_ids)"/></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div style="height:4px; background:linear-gradient(90deg,#4a90d9 0%,#1a2744 100%);"/>
+
+                    <div class="inv-body">
+
+                        <!-- СТОРОНЫ -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                            <tr>
+                                <td style="width:50%; vertical-align:top; padding:14px 18px; background:#f8faff; border:1px solid #e0e6f0; border-right:none; border-radius:6px 0 0 6px;">
+                                    <div style="font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:5px;">Поставщик / Исполнитель</div>
+                                    <div style="font-size:13px; font-weight:700; color:#1a2744; margin-bottom:6px;"><t t-esc="o.company_id.name"/></div>
+                                    <div style="font-size:10px; color:#6b7a99; line-height:1.8;">
+                                        <t t-if="o.company_id.vat"><b style="color:#1a2744;">ИНН:</b> <t t-esc="o.company_id.vat"/><br/></t>
+                                        <t t-if="o.company_id.partner_id.street"><b style="color:#1a2744;">Адрес:</b> <t t-esc="o.company_id.partner_id.street"/><br/></t>
+                                        <t t-if="o.company_id.phone"><b style="color:#1a2744;">Тел:</b> <t t-esc="o.company_id.phone"/><br/></t>
+                                        <t t-if="o.company_id.email"><t t-esc="o.company_id.email"/></t>
+                                    </div>
+                                </td>
+                                <td style="width:50%; vertical-align:top; padding:14px 18px; background:#fff; border:1px solid #e0e6f0; border-radius:0 6px 6px 0;">
+                                    <div style="font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:5px;">Покупатель / Заказчик</div>
+                                    <div style="font-size:13px; font-weight:700; color:#1a2744; margin-bottom:6px;"><t t-esc="o.partner_id.name"/></div>
+                                    <div style="font-size:10px; color:#6b7a99; line-height:1.8;">
+                                        <t t-if="o.partner_id.vat"><b style="color:#1a2744;">ИНН:</b> <t t-esc="o.partner_id.vat"/><br/></t>
+                                        <t t-if="o.partner_id.street"><b style="color:#1a2744;">Адрес:</b> <t t-esc="o.partner_id.street"/><br/></t>
+                                        <t t-if="o.partner_id.phone"><b style="color:#1a2744;">Тел:</b> <t t-esc="o.partner_id.phone"/><br/></t>
+                                        <t t-if="o.partner_id.email"><t t-esc="o.partner_id.email"/></t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- БАНКОВСКИЕ РЕКВИЗИТЫ -->
+                        <t t-if="o.bank_account_number or o.bank_name">
+                            <div style="background:#f0f4ff; border-radius:6px; padding:12px 18px; margin-bottom:18px;">
+                                <div style="font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:8px;">
+                                    Банковские реквизиты для оплаты
+                                </div>
+                                <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                                    <tr>
+                                        <td style="width:33%; vertical-align:top;">
+                                            <div style="font-size:8px; color:#9aaccc; text-transform:uppercase; letter-spacing:0.5px;">Расчётный счёт</div>
+                                            <div style="font-weight:700; color:#1a2744; font-size:12px; letter-spacing:1px;">
+                                                <t t-esc="o.bank_account_number or '—'"/>
+                                            </div>
+                                        </td>
+                                        <td style="width:33%; vertical-align:top; padding-left:16px; border-left:1px solid #c5d5f5;">
+                                            <div style="font-size:8px; color:#9aaccc; text-transform:uppercase; letter-spacing:0.5px;">Банк</div>
+                                            <div style="font-weight:700; color:#1a2744;">
+                                                <t t-esc="o.bank_name or '—'"/>
+                                            </div>
+                                        </td>
+                                        <td style="width:33%; vertical-align:top; padding-left:16px; border-left:1px solid #c5d5f5;">
+                                            <div style="font-size:8px; color:#9aaccc; text-transform:uppercase; letter-spacing:0.5px;">БИК</div>
+                                            <div style="font-weight:700; color:#1a2744; font-size:12px; letter-spacing:1px;">
+                                                <t t-esc="o.bank_bic or '—'"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- ТАБЛИЦА ПОЗИЦИЙ -->
+                        <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#4a90d9; margin-bottom:8px; border-bottom:2px solid #4a90d9; padding-bottom:4px; display:inline-block;">
+                            Перечень товаров / услуг
+                        </div>
+
+                        <table class="inv-tbl" style="margin-top:8px;">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%;" class="text-center">&#8470;</th>
+                                    <th style="width:36%;">Наименование</th>
+                                    <th class="text-center" style="width:6%;">Ед.</th>
+                                    <th class="text-right" style="width:8%;">Кол-во</th>
+                                    <th class="text-right" style="width:12%;">Цена</th>
+                                    <th class="text-right" style="width:14%;">Сумма без НДС</th>
+                                    <th class="text-center" style="width:8%;">НДС</th>
+                                    <th class="text-right" style="width:12%;">Итого</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr>
+                                        <td class="text-center" style="color:#9aaccc; font-size:9px;"><t t-esc="line_index + 1"/></td>
+                                        <td style="font-weight:600; color:#1a2744;"><t t-esc="line.name"/></td>
+                                        <td class="text-center" style="color:#9aaccc;">
+                                            <t t-if="line.uom_id"><t t-esc="line.uom_id.name"/></t>
+                                        </td>
+                                        <td class="text-right"><t t-esc="line.quantity"/></td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_unit" t-options='{"widget":"float","precision":2}'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_subtotal" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                        </td>
+                                        <td class="text-center" style="color:#9aaccc; font-size:9px;">
+                                            <t t-if="line.tax_ids"><t t-esc="', '.join(line.tax_ids.mapped('name'))"/></t>
+                                            <t t-else="">&#8212;</t>
+                                        </td>
+                                        <td class="text-right" style="font-weight:700; color:#1a2744;">
+                                            <t t-esc="line.price_total" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- ИТОГИ + ПРИМЕЧАНИЕ -->
+                        <table style="width:100%; border-collapse:collapse; margin-top:16px;">
+                            <tr>
+                                <td style="width:55%; vertical-align:top; padding-right:20px;">
+                                    <t t-if="o.note">
+                                        <div style="background:#f0f4ff; border-radius:6px; padding:12px 16px; font-size:10px; color:#3d5080;">
+                                            <div style="font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#4a90d9; margin-bottom:4px;">Назначение платежа</div>
+                                            <t t-esc="o.note"/>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="background:#f0f4ff; border-radius:6px; padding:12px 16px; font-size:10px; color:#9aaccc; font-style:italic;">
+                                            <div style="font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#4a90d9; margin-bottom:4px;">Назначение платежа</div>
+                                            Оплата по счёту &#8470; <t t-esc="o.name"/> от <t t-esc="o.date" t-options='{"widget":"date"}'/>
+                                        </div>
+                                    </t>
+                                </td>
+                                <td style="width:45%; vertical-align:top;">
+                                    <div style="background:#f8faff; border-radius:8px; padding:18px 22px; border-left:4px solid #4a90d9;">
+                                        <div style="display:table; width:100%; padding:4px 0; border-bottom:1px solid #eef1f8;">
+                                            <span style="display:table-cell; font-size:10px; color:#6b7a99;">Сумма без НДС:</span>
+                                            <span style="display:table-cell; text-align:right; font-size:10px; font-weight:600; color:#1a2744;">
+                                                <t t-esc="o.amount_untaxed" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                            </span>
+                                        </div>
+                                        <div style="display:table; width:100%; padding:4px 0; border-bottom:1px solid #eef1f8;">
+                                            <span style="display:table-cell; font-size:10px; color:#6b7a99;">НДС:</span>
+                                            <span style="display:table-cell; text-align:right; font-size:10px; font-weight:600; color:#1a2744;">
+                                                <t t-esc="o.amount_tax" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                            </span>
+                                        </div>
+                                        <div style="display:table; width:100%; padding:14px 0 4px; margin-top:4px; border-top:2px solid #4a90d9;">
+                                            <span style="display:table-cell; font-size:13px; font-weight:800; color:#1a2744;">ИТОГО К ОПЛАТЕ:</span>
+                                            <span style="display:table-cell; text-align:right; font-size:20px; font-weight:900; color:#4a90d9;">
+                                                <t t-esc="o.amount_total" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ПОДПИСИ -->
+                        <table style="width:100%; border-collapse:collapse; margin-top:32px;">
+                            <tr>
+                                <td style="width:50%; padding:18px 22px; background:#f8faff; border:1px solid #e0e6f0; border-right:2px dashed #c0ccdd; border-radius:6px 0 0 6px; vertical-align:top;">
+                                    <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#4a90d9; margin-bottom:3px;">Руководитель</div>
+                                    <div style="font-size:12px; font-weight:700; color:#1a2744; margin-bottom:14px;"><t t-esc="o.company_id.name"/></div>
+                                    <div style="border-bottom:1px solid #1a2744; height:32px;"/>
+                                    <div style="font-size:8px; color:#b0bcc8; text-align:center; margin-top:3px;">подпись / расшифровка</div>
+                                    <div style="font-size:8px; color:#9aaccc; margin-top:8px; font-style:italic;">М.П.</div>
+                                </td>
+                                <td style="width:50%; padding:18px 22px; background:#fff; border:1px solid #e0e6f0; border-radius:0 6px 6px 0; vertical-align:top;">
+                                    <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#4a90d9; margin-bottom:3px;">Главный бухгалтер</div>
+                                    <div style="font-size:12px; font-weight:700; color:#1a2744; margin-bottom:14px;"><t t-esc="o.company_id.name"/></div>
+                                    <div style="border-bottom:1px solid #1a2744; height:32px;"/>
+                                    <div style="font-size:8px; color:#b0bcc8; text-align:center; margin-top:3px;">подпись / расшифровка</div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                    <!-- ФУТЕР -->
+                    <div style="background:#1a2744; color:#a8bcd4; font-size:8px; padding:8px 36px; text-align:center; letter-spacing:0.5px; margin-top:28px;">
+                        <t t-esc="o.company_id.name"/>
+                        <t t-if="o.company_id.website"> &#183; <t t-esc="o.company_id.website"/></t>
+                        <t t-if="o.company_id.email"> &#183; <t t-esc="o.company_id.email"/></t>
+                        <t t-if="o.company_id.phone"> &#183; <t t-esc="o.company_id.phone"/></t>
+                        &#160;&#160;&#183;&#160;&#160; Счёт действителен 30 дней
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

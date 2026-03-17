@@ -25,6 +25,12 @@
               action="action_jkh_reconciliation_act"
               sequence="20"/>
 
+    <menuitem id="menu_jkh_invoices"
+              name="Счета на оплату"
+              parent="menu_jkh_sales"
+              action="action_jkh_invoice"
+              sequence="15"/>
+
     <!-- Раздел: Банк -->
     <menuitem id="menu_jkh_bank"
               name="Банк"

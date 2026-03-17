@@ -19,6 +19,15 @@
         <field name="number_increment">1</field>
     </record>
 
+    <record id="seq_jkh_invoice" model="ir.sequence">
+        <field name="name">Счёт на оплату ЖКХ</field>
+        <field name="code">jkh.invoice</field>
+        <field name="prefix">СЧ-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
     <record id="seq_jkh_bank_statement" model="ir.sequence">
         <field name="name">Банковская выписка ЖКХ</field>
         <field name="code">jkh.bank.statement</field>

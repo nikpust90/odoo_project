@@ -167,6 +167,11 @@ class ServiceAct(models.Model):
             },
         }
 
+    def action_preview_pdf(self):
+        """Предпросмотр акта в PDF прямо в браузере"""
+        self.ensure_one()
+        return self.env.ref('jkh_services.action_report_service_act').report_action(self)
+
     def action_export_sbis(self):
         """Открыть визард экспорта в СБИС"""
         return {

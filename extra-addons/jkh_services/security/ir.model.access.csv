@@ -16,3 +16,7 @@ access_jkh_sbis_export_wizard,jkh.sbis.export.wizard,model_jkh_sbis_export_wizar
 access_jkh_bank_import_wizard,jkh.bank.import.wizard,model_jkh_bank_import_wizard,base.group_user,1,1,1,1
 access_jkh_profit_report_wizard,jkh.profit.report.wizard,model_jkh_profit_report_wizard,base.group_user,1,1,1,1
 access_jkh_profit_report_line,jkh.profit.report.line,model_jkh_profit_report_line,base.group_user,1,1,1,1
+access_jkh_invoice_user,jkh.invoice user,model_jkh_invoice,base.group_user,1,1,1,0
+access_jkh_invoice_manager,jkh.invoice manager,model_jkh_invoice,base.group_system,1,1,1,1
+access_jkh_invoice_line_user,jkh.invoice.line user,model_jkh_invoice_line,base.group_user,1,1,1,0
+access_jkh_invoice_line_manager,jkh.invoice.line manager,model_jkh_invoice_line,base.group_system,1,1,1,1

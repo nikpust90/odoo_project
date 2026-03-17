@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Форма счёта на оплату -->
+    <record id="view_jkh_invoice_form" model="ir.ui.view">
+        <field name="name">jkh.invoice.form</field>
+        <field name="model">jkh.invoice</field>
+        <field name="arch" type="xml">
+            <form string="Счёт на оплату">
+                <header>
+                    <button name="action_confirm" string="Выставить счёт" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_preview_pdf" string="Предпросмотр PDF" type="object"
+                            class="btn-secondary" invisible="state == 'draft'"/>
+                    <button name="action_send_email" string="Отправить по email" type="object"
+                            class="btn-secondary" invisible="state not in ('confirmed','sent')"/>
+                    <button name="action_export_sbis" string="Экспорт в СБИС" type="object"
+                            class="btn-secondary" invisible="state not in ('confirmed','sent','paid')"/>
+                    <button name="action_paid" string="Отметить оплаченным" type="object"
+                            class="btn-secondary" invisible="state not in ('confirmed','sent')"/>
+                    <button name="action_cancel" string="Отменить" type="object"
+                            invisible="state in ('paid','cancel')"/>
+                    <button name="action_draft" string="В черновик" type="object"
+                            invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,sent,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Основное">
+                            <field name="date"/>
+                            <field name="date_due"/>
+                            <field name="partner_id" options="{'no_quick_create': True}"/>
+                        </group>
+                        <group string="Договор и банк">
+                            <field name="contract_number"/>
+                            <field name="contract_date"/>
+                            <field name="bank_account_id"/>
+                            <field name="bank_name" readonly="1"/>
+                            <field name="bank_bic" readonly="1"/>
+                            <field name="bank_account_number" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Позиции" name="lines">
+                            <field name="line_ids" widget="one2many">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="price_subtotal"/>
+                                    <field name="price_tax"/>
+                                    <field name="price_total"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_untaxed" string="Без НДС"/>
+                                <field name="amount_tax" string="НДС"/>
+                                <div class="oe_subtotal_footer_separator">
+                                    <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                                </div>
+                            </group>
+                        </page>
+                        <page string="Дополнительно" name="extra">
+                            <group>
+                                <field name="note" placeholder="Назначение платежа..."/>
+                                <field name="service_act_id" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="currency_id" groups="base.group_multi_currency"/>
+                            </group>
+                            <group string="Статус">
+                                <field name="email_sent"/>
+                                <field name="sbis_exported"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Список счетов -->
+    <record id="view_jkh_invoice_list" model="ir.ui.view">
+        <field name="name">jkh.invoice.list</field>
+        <field name="model">jkh.invoice</field>
+        <field name="arch" type="xml">
+            <tree string="Счета на оплату"
+                  decoration-muted="state == 'cancel'"
+                  decoration-success="state == 'paid'"
+                  decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="date_due"/>
+                <field name="partner_id"/>
+                <field name="contract_number" optional="show"/>
+                <field name="amount_untaxed" optional="hide"/>
+                <field name="amount_total" sum="Итого"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-primary="state == 'sent'"
+                       decoration-success="state == 'paid'"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="email_sent" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Поиск -->
+    <record id="view_jkh_invoice_search" model="ir.ui.view">
+        <field name="name">jkh.invoice.search</field>
+        <field name="model">jkh.invoice</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="contract_number"/>
+                <filter name="draft" string="Черновики" domain="[('state','=','draft')]"/>
+                <filter name="confirmed" string="Выставленные" domain="[('state','=','confirmed')]"/>
+                <filter name="sent" string="Отправленные" domain="[('state','=','sent')]"/>
+                <filter name="paid" string="Оплаченные" domain="[('state','=','paid')]"/>
+                <filter name="overdue" string="Просроченные"
+                        domain="[('date_due','&lt;',context_today().strftime('%Y-%m-%d')),('state','in',['confirmed','sent'])]"/>
+                <separator/>
+                <filter name="not_sent_email" string="Не отправлены по email"
+                        domain="[('email_sent','=',False),('state','not in',['draft','cancel'])]"/>
+                <group expand="0" string="Группировать по">
+                    <filter name="group_partner" string="Контрагент" context="{'group_by':'partner_id'}"/>
+                    <filter name="group_state" string="Статус" context="{'group_by':'state'}"/>
+                    <filter name="group_month" string="Месяц" context="{'group_by':'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_jkh_invoice" model="ir.actions.act_window">
+        <field name="name">Счета на оплату</field>
+        <field name="res_model">jkh.invoice</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_jkh_invoice_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Создайте первый счёт на оплату
+            </p>
+        </field>
+    </record>
+
+</odoo>
