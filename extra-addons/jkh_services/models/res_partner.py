@@ -55,7 +55,7 @@ class ResPartner(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Акты реализации',
             'res_model': 'jkh.service.act',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': [('partner_id', '=', self.id)],
         }
 
@@ -64,6 +64,6 @@ class ResPartner(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'Акты сверки',
             'res_model': 'jkh.reconciliation.act',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': [('partner_id', '=', self.id)],
         }

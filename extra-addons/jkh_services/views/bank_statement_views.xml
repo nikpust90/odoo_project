@@ -69,7 +69,7 @@
         <field name="name">jkh.bank.statement.list</field>
         <field name="model">jkh.bank.statement</field>
         <field name="arch" type="xml">
-            <list string="Банковские выписки">
+            <tree string="Банковские выписки">
                 <field name="name"/>
                 <field name="date"/>
                 <field name="journal_id"/>
@@ -80,7 +80,7 @@
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-success="state == 'posted'"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -88,7 +88,7 @@
     <record id="action_jkh_bank_statement" model="ir.actions.act_window">
         <field name="name">Банковские выписки</field>
         <field name="res_model">jkh.bank.statement</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Создайте или импортируйте банковскую выписку
