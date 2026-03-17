@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_jkh_profit_report_wizard_form" model="ir.ui.view">
+        <field name="name">jkh.profit.report.wizard.form</field>
+        <field name="model">jkh.profit.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Отчёт по выручке">
+                <field name="report_generated" invisible="1"/>
+
+                <!-- Панель фильтров -->
+                <group string="Параметры отчёта" invisible="report_generated == True">
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="group_by" widget="radio"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="state_filter"/>
+                        <field name="partner_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+
+                <!-- Результаты -->
+                <group invisible="report_generated == False">
+                    <!-- Мини-сводка -->
+                    <div class="row" style="margin-bottom:16px;">
+                        <div class="col-3 text-center">
+                            <div style="font-size:20px; font-weight:700; color:#1a2744;">
+                                <field name="total_revenue" nolabel="1"/>
+                            </div>
+                            <div style="font-size:10px; color:#9aaccc;">Выручка без НДС</div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div style="font-size:20px; font-weight:700; color:#f39c12;">
+                                <field name="total_tax" nolabel="1"/>
+                            </div>
+                            <div style="font-size:10px; color:#9aaccc;">НДС</div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div style="font-size:22px; font-weight:800; color:#27ae60;">
+                                <field name="total_with_tax" nolabel="1"/>
+                            </div>
+                            <div style="font-size:10px; color:#9aaccc;">Итого с НДС</div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div style="font-size:26px; font-weight:800; color:#4a90d9;">
+                                <field name="acts_count" nolabel="1"/>
+                            </div>
+                            <div style="font-size:10px; color:#9aaccc;">Актов</div>
+                        </div>
+                    </div>
+
+                    <!-- Детализация -->
+                    <field name="result_line_ids" nolabel="1" readonly="1">
+                        <tree>
+                            <field name="group_label" string="Группа"/>
+                            <field name="acts_count" string="Актов"/>
+                            <field name="revenue" string="Выручка без НДС" sum="Итого"/>
+                            <field name="tax" string="НДС" sum="Итого"/>
+                            <field name="total_with_tax" string="Итого с НДС" sum="Итого"/>
+                        </tree>
+                    </field>
+                </group>
+
+                <footer>
+                    <button name="action_generate" string="Сформировать" type="object"
+                            class="btn-primary" invisible="report_generated == True"/>
+                    <button name="action_print_pdf" string="Печать PDF" type="object"
+                            class="btn-secondary" invisible="report_generated == False"/>
+                    <button name="action_generate" string="Обновить" type="object"
+                            class="btn-secondary" invisible="report_generated == False"/>
+                    <button string="Закрыть" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action для открытия отчёта -->
+    <record id="action_jkh_profit_report" model="ir.actions.act_window">
+        <field name="name">Отчёт по выручке</field>
+        <field name="res_model">jkh.profit.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Сформируйте отчёт по выручке</p>
+        </field>
+    </record>
+
+</odoo>

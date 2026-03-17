@@ -100,31 +100,122 @@ class ReconciliationAct(models.Model):
         return super().create(vals_list)
 
     def action_generate_from_moves(self):
-        """Автоматически заполнить строки из проводок бухгалтерии"""
+        """
+        Автозаполнение строк акта сверки из трёх источников (в порядке приоритета):
+        1. Проведённые бухгалтерские проводки (account.move.line) — приоритет
+        2. Подтверждённые акты реализации (jkh.service.act) — если проводок нет
+        3. Проведённые строки банковских выписок (jkh.bank.statement.line)
+        """
         self.ensure_one()
-        self.line_ids.unlink()
+        if not self.partner_id:
+            raise UserError(_('Укажите контрагента перед заполнением.'))
+        if not self.period_from or not self.period_to:
+            raise UserError(_('Укажите период сверки.'))
 
-        domain = [
+        self.line_ids.unlink()
+        raw_lines = []
+
+        # --- Источник 1: бухгалтерские проводки ---
+        acc_domain = [
             ('partner_id', '=', self.partner_id.id),
             ('date', '>=', self.period_from),
             ('date', '<=', self.period_to),
             ('parent_state', '=', 'posted'),
             ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable']),
         ]
-        move_lines = self.env['account.move.line'].search(domain, order='date asc')
-
-        lines_to_create = []
+        move_lines = self.env['account.move.line'].search(acc_domain, order='date asc')
         for ml in move_lines:
-            lines_to_create.append((0, 0, {
+            raw_lines.append({
                 'date': ml.date,
                 'document': ml.move_id.name,
-                'description': ml.name or ml.move_id.ref or '',
+                'description': ml.name or ml.move_id.ref or ml.move_id.name or '',
                 'debit': ml.debit,
                 'credit': ml.credit,
                 'move_line_id': ml.id,
-            }))
+                'source': 'accounting',
+            })
+
+        # --- Источник 2: акты реализации (если нет бухгалтерских проводок) ---
+        if not raw_lines:
+            service_acts = self.env['jkh.service.act'].search([
+                ('partner_id', '=', self.partner_id.id),
+                ('date', '>=', self.period_from),
+                ('date', '<=', self.period_to),
+                ('state', 'in', ['confirmed', 'sent', 'done']),
+            ], order='date asc')
+            for act in service_acts:
+                raw_lines.append({
+                    'date': act.date,
+                    'document': act.name,
+                    'description': 'Реализация услуг за период %s \u2013 %s' % (
+                        act.period_from, act.period_to
+                    ),
+                    'debit': act.amount_total,
+                    'credit': 0.0,
+                    'source': 'service_act',
+                })
+
+        # --- Источник 3: банковские выписки (оплаты от контрагента) ---
+        bank_lines = self.env['jkh.bank.statement.line'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('date', '>=', self.period_from),
+            ('date', '<=', self.period_to),
+            ('statement_id.state', '=', 'posted'),
+        ], order='date asc')
+        for bl in bank_lines:
+            if bl.amount > 0:
+                raw_lines.append({
+                    'date': bl.date,
+                    'document': bl.payment_order_number or bl.ref or '',
+                    'description': bl.name or 'Оплата',
+                    'debit': 0.0,
+                    'credit': bl.amount,
+                    'source': 'bank',
+                })
+            elif bl.amount < 0:
+                raw_lines.append({
+                    'date': bl.date,
+                    'document': bl.payment_order_number or bl.ref or '',
+                    'description': bl.name or 'Списание',
+                    'debit': abs(bl.amount),
+                    'credit': 0.0,
+                    'source': 'bank',
+                })
+
+        if not raw_lines:
+            raise UserError(_(
+                'За период с %s по %s не найдено ни подтверждённых актов реализации, '
+                'ни бухгалтерских проводок, ни банковских операций для контрагента "%s".'
+            ) % (self.period_from, self.period_to, self.partner_id.name))
+
+        # Сортируем по дате и создаём строки
+        raw_lines.sort(key=lambda x: x['date'])
+        lines_to_create = []
+        for row in raw_lines:
+            vals = {
+                'date': row['date'],
+                'document': row['document'],
+                'description': row['description'],
+                'debit': row['debit'],
+                'credit': row['credit'],
+            }
+            if row.get('move_line_id'):
+                vals['move_line_id'] = row['move_line_id']
+            lines_to_create.append((0, 0, vals))
+
         self.line_ids = lines_to_create
-        return True
+
+        # Отображаем количество найденных строк
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Акт сверки заполнен'),
+                'message': _('Добавлено строк: %d') % len(lines_to_create),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
 
     def action_send_email(self):
         return {

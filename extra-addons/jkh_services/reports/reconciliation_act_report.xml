@@ -15,183 +15,283 @@
     <template id="report_reconciliation_act_template">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <!-- Заголовок -->
-                        <div class="row mb-4">
-                            <div class="col-12 text-center">
-                                <h3><strong>АКТ СВЕРКИ ВЗАИМОРАСЧЁТОВ № <t t-esc="o.name"/></strong></h3>
-                                <p>
-                                    за период с
-                                    <t t-esc="o.period_from" t-options='{"widget": "date"}'/> по
-                                    <t t-esc="o.period_to" t-options='{"widget": "date"}'/>
-                                </p>
-                                <p>составлен <t t-esc="o.date" t-options='{"widget": "date"}'/></p>
-                            </div>
+                <div class="article" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1a1a2e; background: #ffffff;">
+
+                    <style>
+                        .recon-header { background: #1a2744; color: #fff; padding: 26px 36px 20px; }
+                        .recon-accent-bar { height: 4px; background: linear-gradient(90deg, #27ae60 0%, #1a2744 100%); }
+                        .recon-body { padding: 24px 36px; }
+                        .recon-badge { display:inline-block; background:#27ae60; color:#fff; font-size:8px; font-weight:700; padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:0.8px; vertical-align:middle; margin-left:8px; }
+                        .recon-parties { width:100%; border-collapse:collapse; margin-bottom:20px; }
+                        .recon-section-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#27ae60; margin-bottom:4px; }
+                        .recon-party-name { font-size:13px; font-weight:700; color:#1a2744; }
+                        .recon-party-detail { font-size:10px; color:#6b7a99; margin-top:2px; }
+                        .recon-period-bar { background:#f0fff6; border:1px solid #b2dfcc; border-radius:6px; padding:10px 16px; margin-bottom:20px; font-size:10px; color:#1a5c3a; }
+                        .recon-tbl { width:100%; border-collapse:collapse; font-size:10px; }
+                        .recon-tbl thead tr { background:#1a2744; color:#fff; }
+                        .recon-tbl thead th { padding:8px 10px; font-size:9px; font-weight:600; letter-spacing:0.3px; border:none; text-transform:uppercase; }
+                        .recon-tbl tbody tr { border-bottom:1px solid #eef1f8; }
+                        .recon-tbl tbody tr:nth-child(even) { background:#f9fffe; }
+                        .recon-tbl tbody td { padding:6px 10px; color:#2d3748; border:none; }
+                        .recon-tbl .row-opening { background:#eaf7ef !important; font-weight:600; }
+                        .recon-tbl .row-total { background:#27ae60 !important; color:#fff !important; font-weight:700; }
+                        .recon-tbl .row-total td { color:#fff !important; padding:9px 10px; }
+                        .recon-tbl .row-balance { background:#1a2744 !important; }
+                        .recon-tbl .row-balance td { color:#fff !important; padding:9px 10px; font-weight:700; font-size:11px; }
+                        .recon-tbl .row-balance .balance-amount { color:#4ae09a !important; font-size:13px; }
+                        .recon-divider { width:2px; background: #e0e6f0; }
+                        .recon-col-title { font-size:11px; font-weight:700; color:#1a2744; text-align:center; padding:8px 0 10px; border-bottom:2px solid #27ae60; margin-bottom:0; }
+                        .recon-col-title-sub { font-size:9px; color:#6b7a99; font-weight:400; }
+                        .recon-conclusion { background:#f0fff6; border-left:4px solid #27ae60; border-radius:0 6px 6px 0; padding:14px 20px; margin-top:20px; font-size:11px; color:#1a5c3a; }
+                        .recon-empty-hint { color:#b0bdd6; font-style:italic; font-size:9px; }
+                        .text-right { text-align:right; }
+                        .text-center { text-align:center; }
+                    </style>
+
+                    <!-- ШАПКА -->
+                    <div class="recon-header">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td style="vertical-align:middle;">
+                                    <div style="font-size:22px; font-weight:700; letter-spacing:0.5px; margin:0;">
+                                        АКТ СВЕРКИ ВЗАИМОРАСЧЁТОВ
+                                    </div>
+                                    <div style="font-size:11px; color:#a8bcd4; margin-top:4px; letter-spacing:1px; text-transform:uppercase;">
+                                        reconciliation statement
+                                    </div>
+                                </td>
+                                <td style="text-align:right; vertical-align:middle;">
+                                    <div style="font-size:28px; font-weight:800; color:#4ae09a;">
+                                        &#8470; <t t-esc="o.name"/>
+                                    </div>
+                                    <div style="font-size:11px; color:#a8bcd4; margin-top:2px;">
+                                        составлен <t t-esc="o.date" t-options='{"widget": "date"}'/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="recon-accent-bar"/>
+
+                    <div class="recon-body">
+
+                        <!-- СТОРОНЫ -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                            <tr>
+                                <td style="width:50%; padding:14px 18px; background:#f8faff; border:1px solid #e0e6f0; border-right:none; border-radius:6px 0 0 6px; vertical-align:top;">
+                                    <div class="recon-section-label">Организация</div>
+                                    <div class="recon-party-name"><t t-esc="o.company_id.name"/></div>
+                                    <div class="recon-party-detail">
+                                        ИНН: <t t-esc="o.company_id.vat or '—'"/>
+                                        <t t-if="o.company_id.partner_id.street">
+                                            &#183; <t t-esc="o.company_id.partner_id.street"/>
+                                        </t>
+                                    </div>
+                                </td>
+                                <td style="width:50%; padding:14px 18px; background:#ffffff; border:1px solid #e0e6f0; border-radius:0 6px 6px 0; vertical-align:top;">
+                                    <div class="recon-section-label">Контрагент</div>
+                                    <div class="recon-party-name"><t t-esc="o.partner_id.name"/></div>
+                                    <div class="recon-party-detail">
+                                        ИНН: <t t-esc="o.partner_id.vat or '—'"/>
+                                        <t t-if="o.partner_id.street">
+                                            &#183; <t t-esc="o.partner_id.street"/>
+                                        </t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ПЕРИОД -->
+                        <div class="recon-period-bar">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td style="width:50%;">
+                                        <strong>Период сверки:</strong>
+                                        с <t t-esc="o.period_from" t-options='{"widget": "date"}'/> &#8212;
+                                        по <t t-esc="o.period_to" t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td style="width:50%; text-align:right;">
+                                        <strong>Сальдо на начало периода:</strong>
+                                        <t t-esc="o.balance_start" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
 
-                        <!-- Стороны -->
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <strong>Организация:</strong><br/>
-                                <t t-esc="o.company_id.name"/><br/>
-                                ИНН: <t t-esc="o.company_id.vat or ''"/>
-                            </div>
-                            <div class="col-6">
-                                <strong>Контрагент:</strong><br/>
-                                <t t-esc="o.partner_id.name"/><br/>
-                                ИНН: <t t-esc="o.partner_id.vat or ''"/>
-                            </div>
-                        </div>
-
-                        <!-- Две колонки: наша сторона и сторона контрагента -->
-                        <div class="row">
-                            <!-- Наша сторона -->
-                            <div class="col-6" style="padding-right: 5px;">
-                                <p class="text-center"><strong>По данным <t t-esc="o.company_id.name"/></strong></p>
-                                <table class="table table-bordered table-sm" style="font-size: 10px;">
-                                    <thead>
-                                        <tr class="bg-light">
-                                            <th>Дата</th>
-                                            <th>Документ</th>
-                                            <th class="text-right">Дебет</th>
-                                            <th class="text-right">Кредит</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="2">Сальдо на начало</td>
-                                            <td class="text-right" t-if="o.balance_start >= 0">
-                                                <t t-esc="o.balance_start" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                            </td>
-                                            <td class="text-right" t-else="">—</td>
-                                            <td class="text-right" t-if="o.balance_start &lt; 0">
-                                                <t t-esc="abs(o.balance_start)" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                            </td>
-                                            <td class="text-right" t-else="">—</td>
-                                        </tr>
-                                        <t t-foreach="o.line_ids" t-as="line">
+                        <!-- ДВЕ КОЛОНКИ ТАБЛИЦ -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:4px;">
+                            <tr>
+                                <!-- ЛЕВАЯ: наши данные -->
+                                <td style="width:49%; vertical-align:top; padding-right:8px;">
+                                    <div class="recon-col-title">
+                                        По данным: <t t-esc="o.company_id.name"/>
+                                        <br/><span class="recon-col-title-sub">(наши сведения)</span>
+                                    </div>
+                                    <table class="recon-tbl" style="margin-top:8px;">
+                                        <thead>
                                             <tr>
-                                                <td><t t-esc="line.date" t-options='{"widget": "date"}'/></td>
-                                                <td>
-                                                    <t t-esc="line.document or ''"/>
-                                                    <t t-if="line.description">
-                                                        <br/><small><t t-esc="line.description"/></small>
+                                                <th style="width:18%;">Дата</th>
+                                                <th style="width:38%;">Документ</th>
+                                                <th class="text-right" style="width:22%;">Дебет</th>
+                                                <th class="text-right" style="width:22%;">Кредит</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Сальдо начало -->
+                                            <tr class="row-opening">
+                                                <td colspan="2" style="color:#1a5c3a;">Сальдо на начало</td>
+                                                <td class="text-right" style="color:#1a5c3a;">
+                                                    <t t-if="o.balance_start &gt; 0">
+                                                        <t t-esc="o.balance_start" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                                     </t>
+                                                    <t t-else="">&#8212;</t>
                                                 </td>
-                                                <td class="text-right">
-                                                    <t t-if="line.debit">
-                                                        <t t-esc="line.debit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                <td class="text-right" style="color:#c0392b;">
+                                                    <t t-if="o.balance_start &lt; 0">
+                                                        <t t-esc="abs(o.balance_start)" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                                     </t>
-                                                </td>
-                                                <td class="text-right">
-                                                    <t t-if="line.credit">
-                                                        <t t-esc="line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                    </t>
+                                                    <t t-else="">&#8212;</t>
                                                 </td>
                                             </tr>
-                                        </t>
-                                        <tr class="bg-light">
-                                            <td colspan="2"><strong>Итого оборот:</strong></td>
-                                            <td class="text-right">
-                                                <strong>
+                                            <!-- Строки -->
+                                            <t t-foreach="o.line_ids" t-as="line">
+                                                <tr>
+                                                    <td style="color:#9aaccc; font-size:9px;">
+                                                        <t t-esc="line.date" t-options='{"widget": "date"}'/>
+                                                    </td>
+                                                    <td>
+                                                        <span style="font-weight:600;"><t t-esc="line.document or ''"/></span>
+                                                        <t t-if="line.description">
+                                                            <br/><span style="font-size:9px; color:#9aaccc;"><t t-esc="line.description"/></span>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-right" style="color:#27ae60; font-weight:600;">
+                                                        <t t-if="line.debit">
+                                                            <t t-esc="line.debit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-right" style="color:#e74c3c; font-weight:600;">
+                                                        <t t-if="line.credit">
+                                                            <t t-esc="line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <!-- Итого оборот -->
+                                            <tr class="row-total">
+                                                <td colspan="2">Итого оборот</td>
+                                                <td class="text-right">
                                                     <t t-esc="o.debit_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                </strong>
-                                            </td>
-                                            <td class="text-right">
-                                                <strong>
+                                                </td>
+                                                <td class="text-right">
                                                     <t t-esc="o.credit_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                </strong>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2"><strong>Сальдо на конец периода:</strong></td>
-                                            <td class="text-right" t-if="o.balance_end >= 0">
-                                                <strong>
+                                                </td>
+                                            </tr>
+                                            <!-- Сальдо конец -->
+                                            <tr class="row-balance">
+                                                <td colspan="2">Сальдо на конец периода</td>
+                                                <td class="text-right balance-amount" t-if="o.balance_end &gt;= 0" colspan="2">
                                                     <t t-esc="o.balance_end" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                </strong>
-                                            </td>
-                                            <td class="text-right" t-else="">—</td>
-                                            <td class="text-right" t-if="o.balance_end &lt; 0">
-                                                <strong>
-                                                    <t t-esc="abs(o.balance_end)" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                </strong>
-                                            </td>
-                                            <td class="text-right" t-else="">—</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                                </td>
+                                                <td class="text-right balance-amount" t-if="o.balance_end &lt; 0" colspan="2" style="color:#ff7675 !important;">
+                                                    (<t t-esc="abs(o.balance_end)" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>)
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
 
-                            <!-- Сторона контрагента (для заполнения) -->
-                            <div class="col-6" style="padding-left: 5px; border-left: 1px solid #dee2e6;">
-                                <p class="text-center"><strong>По данным <t t-esc="o.partner_id.name"/></strong></p>
-                                <table class="table table-bordered table-sm" style="font-size: 10px;">
-                                    <thead>
-                                        <tr class="bg-light">
-                                            <th>Дата</th>
-                                            <th>Документ</th>
-                                            <th class="text-right">Дебет</th>
-                                            <th class="text-right">Кредит</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="2">Сальдо на начало</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr style="height: 200px;">
-                                            <td colspan="4" class="text-center text-muted">
-                                                (заполняется контрагентом)
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2"><strong>Итого оборот:</strong></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2"><strong>Сальдо на конец:</strong></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                <!-- РАЗДЕЛИТЕЛЬ -->
+                                <td style="width:2%; text-align:center; vertical-align:middle; padding:0 4px;">
+                                    <div style="border-left:2px dashed #c0ccdd; height:100%; margin:0 auto; width:0;"/>
+                                </td>
 
-                        <!-- Расхождения -->
-                        <p class="mt-3">
-                            По данным бухгалтерского учёта задолженность
-                            <t t-esc="o.partner_id.name"/> перед
-                            <t t-esc="o.company_id.name"/> составляет:
-                            <strong>
+                                <!-- ПРАВАЯ: данные контрагента -->
+                                <td style="width:49%; vertical-align:top; padding-left:8px;">
+                                    <div class="recon-col-title">
+                                        По данным: <t t-esc="o.partner_id.name"/>
+                                        <br/><span class="recon-col-title-sub">(данные контрагента)</span>
+                                    </div>
+                                    <table class="recon-tbl" style="margin-top:8px;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:18%;">Дата</th>
+                                                <th style="width:38%;">Документ</th>
+                                                <th class="text-right" style="width:22%;">Дебет</th>
+                                                <th class="text-right" style="width:22%;">Кредит</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="row-opening">
+                                                <td colspan="2" style="color:#1a5c3a;">Сальдо на начало</td>
+                                                <td class="text-right recon-empty-hint" colspan="2">заполняется</td>
+                                            </tr>
+                                            <tr style="height:160px;">
+                                                <td colspan="4" class="text-center recon-empty-hint" style="vertical-align:middle;">
+                                                    (заполняется контрагентом)
+                                                </td>
+                                            </tr>
+                                            <tr class="row-total">
+                                                <td colspan="2">Итого оборот</td>
+                                                <td/>
+                                                <td/>
+                                            </tr>
+                                            <tr class="row-balance">
+                                                <td colspan="2">Сальдо на конец периода</td>
+                                                <td colspan="2"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ЗАКЛЮЧЕНИЕ -->
+                        <div class="recon-conclusion">
+                            По данным бухгалтерского учёта
+                            <strong><t t-esc="o.company_id.name"/></strong>,
+                            задолженность <strong><t t-esc="o.partner_id.name"/></strong> составляет:
+                            <strong style="font-size:14px; color:#145a32; margin-left:8px;">
                                 <t t-esc="o.balance_end" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                             </strong>
-                        </p>
-
-                        <!-- Подписи -->
-                        <div class="row mt-5">
-                            <div class="col-6">
-                                <p><strong><t t-esc="o.company_id.name"/></strong></p>
-                                <br/><br/>
-                                <p>_________________ / ___________________ /</p>
-                                <p style="font-size: 10px;">М.П. (подпись / расшифровка)</p>
-                            </div>
-                            <div class="col-6">
-                                <p><strong><t t-esc="o.partner_id.name"/></strong></p>
-                                <br/><br/>
-                                <p>_________________ / ___________________ /</p>
-                                <p style="font-size: 10px;">М.П. (подпись / расшифровка)</p>
-                            </div>
+                            <t t-if="o.note">
+                                <br/><span style="font-size:9px; color:#1a5c3a; margin-top:4px; display:block;">
+                                    Примечание: <t t-esc="o.note"/>
+                                </span>
+                            </t>
                         </div>
 
-                        <t t-if="o.note">
-                            <p class="mt-3"><em>Примечание: <t t-esc="o.note"/></em></p>
-                        </t>
+                        <!-- ПОДПИСИ -->
+                        <table style="width:100%; border-collapse:collapse; margin-top:28px;">
+                            <tr>
+                                <td style="width:50%; padding:18px 22px; background:#f8faff; border:1px solid #e0e6f0; border-right:2px dashed #c0ccdd; border-radius:6px 0 0 6px; vertical-align:top;">
+                                    <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#27ae60; margin-bottom:4px;">Организация</div>
+                                    <div style="font-size:12px; font-weight:700; color:#1a2744; margin-bottom:14px;"><t t-esc="o.company_id.name"/></div>
+                                    <div style="border-bottom:1px solid #1a2744; height:30px;"/>
+                                    <div style="font-size:8px; color:#9aaccc; text-align:center; margin-top:3px;">подпись / расшифровка подписи</div>
+                                    <div style="font-size:8px; color:#9aaccc; margin-top:8px; font-style:italic;">М.П.</div>
+                                </td>
+                                <td style="width:50%; padding:18px 22px; background:#ffffff; border:1px solid #e0e6f0; border-radius:0 6px 6px 0; vertical-align:top;">
+                                    <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#27ae60; margin-bottom:4px;">Контрагент</div>
+                                    <div style="font-size:12px; font-weight:700; color:#1a2744; margin-bottom:14px;"><t t-esc="o.partner_id.name"/></div>
+                                    <div style="border-bottom:1px solid #1a2744; height:30px;"/>
+                                    <div style="font-size:8px; color:#9aaccc; text-align:center; margin-top:3px;">подпись / расшифровка подписи</div>
+                                    <div style="font-size:8px; color:#9aaccc; margin-top:8px; font-style:italic;">М.П.</div>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
-                </t>
+
+                    <!-- НИЖНИЙ КОЛОНТИТУЛ -->
+                    <div style="background:#1a2744; color:#a8bcd4; font-size:8px; padding:8px 36px; text-align:center; letter-spacing:0.5px; margin-top:28px;">
+                        <t t-esc="o.company_id.name"/>
+                        <t t-if="o.company_id.website"> &#183; <t t-esc="o.company_id.website"/></t>
+                        <t t-if="o.company_id.email"> &#183; <t t-esc="o.company_id.email"/></t>
+                        <t t-if="o.company_id.phone"> &#183; <t t-esc="o.company_id.phone"/></t>
+                    </div>
+
+                </div>
             </t>
         </t>
     </template>

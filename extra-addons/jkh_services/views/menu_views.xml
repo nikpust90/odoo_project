@@ -37,6 +37,18 @@
               action="action_jkh_bank_statement"
               sequence="10"/>
 
+    <!-- Раздел: Отчёты -->
+    <menuitem id="menu_jkh_reports"
+              name="Отчёты"
+              parent="menu_jkh_root"
+              sequence="30"/>
+
+    <menuitem id="menu_jkh_profit_report"
+              name="Отчёт по выручке"
+              parent="menu_jkh_reports"
+              action="action_jkh_profit_report"
+              sequence="10"/>
+
     <!-- Раздел: Справочники -->
     <menuitem id="menu_jkh_dict"
               name="Справочники"

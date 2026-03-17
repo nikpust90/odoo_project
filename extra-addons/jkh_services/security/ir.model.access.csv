@@ -14,3 +14,5 @@ access_jkh_bank_statement_line_manager,jkh.bank.statement.line manager,model_jkh
 access_jkh_send_act_wizard,jkh.send.act.wizard,model_jkh_send_act_wizard,base.group_user,1,1,1,1
 access_jkh_sbis_export_wizard,jkh.sbis.export.wizard,model_jkh_sbis_export_wizard,base.group_user,1,1,1,1
 access_jkh_bank_import_wizard,jkh.bank.import.wizard,model_jkh_bank_import_wizard,base.group_user,1,1,1,1
+access_jkh_profit_report_wizard,jkh.profit.report.wizard,model_jkh_profit_report_wizard,base.group_user,1,1,1,1
+access_jkh_profit_report_line,jkh.profit.report.line,model_jkh_profit_report_line,base.group_user,1,1,1,1
