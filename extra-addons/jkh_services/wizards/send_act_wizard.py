@@ -93,7 +93,7 @@ class SendActWizard(models.TransientModel):
             attachments = []
             if self.attach_pdf:
                 try:
-                    pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
+                    pdf_content, _ctype = self.env['ir.actions.report']._render_qweb_pdf(
                         report_ref, [record.id]
                     )
                     attachments.append((
