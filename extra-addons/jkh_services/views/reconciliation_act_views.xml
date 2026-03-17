@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Форма акта сверки -->
+    <record id="view_jkh_reconciliation_act_form" model="ir.ui.view">
+        <field name="name">jkh.reconciliation.act.form</field>
+        <field name="model">jkh.reconciliation.act</field>
+        <field name="arch" type="xml">
+            <form string="Акт сверки взаиморасчётов">
+                <header>
+                    <button name="action_generate_from_moves" string="Заполнить из проводок" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_send_email" string="Отправить по email" type="object"
+                            class="btn-secondary" invisible="state == 'signed'"/>
+                    <button name="action_confirm" string="Подтвердить" type="object"
+                            invisible="state != 'sent'"/>
+                    <button name="action_signed" string="Подписан" type="object"
+                            invisible="state != 'confirmed'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,sent,confirmed,signed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Основное">
+                            <field name="date"/>
+                            <field name="partner_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Период сверки">
+                            <field name="period_from"/>
+                            <field name="period_to"/>
+                            <field name="balance_start"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Операции" name="lines">
+                            <field name="line_ids" widget="one2many">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="document"/>
+                                    <field name="description"/>
+                                    <field name="debit" string="Дебет (нам должны)"/>
+                                    <field name="credit" string="Кредит (мы должны)"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="debit_total" string="Итого дебет"/>
+                                <field name="credit_total" string="Итого кредит"/>
+                                <div class="oe_subtotal_footer_separator">
+                                    <label for="balance_end" string="Сальдо на конец периода"/>
+                                    <field name="balance_end" class="oe_subtotal_footer_separator"/>
+                                </div>
+                            </group>
+                        </page>
+                        <page string="Примечание">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Список актов сверки -->
+    <record id="view_jkh_reconciliation_act_list" model="ir.ui.view">
+        <field name="name">jkh.reconciliation.act.list</field>
+        <field name="model">jkh.reconciliation.act</field>
+        <field name="arch" type="xml">
+            <list string="Акты сверки" decoration-success="state == 'signed'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="period_from"/>
+                <field name="period_to"/>
+                <field name="balance_start"/>
+                <field name="balance_end"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'sent'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-success="state == 'signed'"/>
+                <field name="email_sent" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Поиск -->
+    <record id="view_jkh_reconciliation_act_search" model="ir.ui.view">
+        <field name="name">jkh.reconciliation.act.search</field>
+        <field name="model">jkh.reconciliation.act</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter name="draft" string="Черновики" domain="[('state','=','draft')]"/>
+                <filter name="sent" string="Отправленные" domain="[('state','=','sent')]"/>
+                <filter name="signed" string="Подписанные" domain="[('state','=','signed')]"/>
+                <filter name="not_sent" string="Не отправлены" domain="[('email_sent','=',False)]"/>
+                <group expand="0" string="Группировать по">
+                    <filter name="group_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Статус" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_jkh_reconciliation_act" model="ir.actions.act_window">
+        <field name="name">Акты сверки</field>
+        <field name="res_model">jkh.reconciliation.act</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_jkh_reconciliation_act_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Создайте первый акт сверки взаиморасчётов
+            </p>
+        </field>
+    </record>
+
+</odoo>

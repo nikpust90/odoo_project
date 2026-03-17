@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_jkh_send_act_wizard_form" model="ir.ui.view">
+        <field name="name">jkh.send.act.wizard.form</field>
+        <field name="model">jkh.send.act.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Отправка акта по email">
+                <group>
+                    <field name="act_type" widget="radio"/>
+                    <field name="act_ids" invisible="act_type != 'service'"/>
+                    <field name="reconciliation_ids" invisible="act_type != 'reconciliation'"/>
+                </group>
+                <group string="Параметры отправки">
+                    <field name="email_from"/>
+                    <field name="partner_ids" widget="many2many_tags"/>
+                    <field name="subject"/>
+                    <field name="attach_pdf"/>
+                </group>
+                <group string="Текст письма">
+                    <field name="body" nolabel="1" widget="html"/>
+                </group>
+                <footer>
+                    <button name="action_send" string="Отправить" type="object" class="btn-primary"/>
+                    <button string="Отмена" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Форма документа реализации услуг -->
+    <record id="view_jkh_service_act_form" model="ir.ui.view">
+        <field name="name">jkh.service.act.form</field>
+        <field name="model">jkh.service.act</field>
+        <field name="arch" type="xml">
+            <form string="Реализация услуг">
+                <header>
+                    <button name="action_confirm" string="Подтвердить" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_send_email" string="Отправить по email" type="object"
+                            class="btn-secondary" invisible="state not in ('confirmed', 'sent')"/>
+                    <button name="action_export_sbis" string="Экспорт в СБИС" type="object"
+                            class="btn-secondary" invisible="state not in ('confirmed', 'sent', 'done')"/>
+                    <button name="action_create_invoice" string="Создать счёт" type="object"
+                            class="btn-secondary"
+                            invisible="state not in ('confirmed', 'sent') or invoice_id != False"/>
+                    <button name="action_done" string="Закрыть" type="object"
+                            class="btn-secondary" invisible="state != 'sent'"/>
+                    <button name="action_cancel" string="Отменить" type="object"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_draft" string="В черновик" type="object"
+                            invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,sent,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(account.action_move_out_invoice_type)d" type="action"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="invoice_id == False">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Счёт</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Основное">
+                            <field name="date"/>
+                            <field name="partner_id" options="{'no_quick_create': True}"/>
+                            <field name="contract_number"/>
+                            <field name="contract_date"/>
+                        </group>
+                        <group string="Период услуг">
+                            <field name="period_from"/>
+                            <field name="period_to"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Услуги" name="lines">
+                            <field name="line_ids" widget="one2many">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="price_subtotal"/>
+                                    <field name="price_tax"/>
+                                    <field name="price_total"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_untaxed" string="Итого без НДС"/>
+                                <field name="amount_tax" string="НДС"/>
+                                <div class="oe_subtotal_footer_separator">
+                                    <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                                </div>
+                            </group>
+                        </page>
+                        <page string="Примечание" name="note">
+                            <field name="note" placeholder="Примечание к документу..."/>
+                        </page>
+                        <page string="Статус отправки" name="sending">
+                            <group>
+                                <field name="email_sent"/>
+                                <field name="sbis_exported"/>
+                                <field name="sbis_export_date" invisible="sbis_exported == False"/>
+                                <field name="invoice_id" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Список документов реализации -->
+    <record id="view_jkh_service_act_list" model="ir.ui.view">
+        <field name="name">jkh.service.act.list</field>
+        <field name="model">jkh.service.act</field>
+        <field name="arch" type="xml">
+            <list string="Реализация услуг" decoration-muted="state == 'cancel'"
+                  decoration-info="state == 'draft'" decoration-success="state == 'done'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="contract_number"/>
+                <field name="period_from"/>
+                <field name="period_to"/>
+                <field name="amount_untaxed"/>
+                <field name="amount_total" sum="Итого"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-primary="state == 'sent'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="email_sent" optional="show"/>
+                <field name="sbis_exported" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Поиск -->
+    <record id="view_jkh_service_act_search" model="ir.ui.view">
+        <field name="name">jkh.service.act.search</field>
+        <field name="model">jkh.service.act</field>
+        <field name="arch" type="xml">
+            <search string="Поиск актов реализации">
+                <field name="name" string="Номер"/>
+                <field name="partner_id" string="Контрагент"/>
+                <field name="contract_number" string="Договор"/>
+                <separator/>
+                <filter name="draft" string="Черновики" domain="[('state','=','draft')]"/>
+                <filter name="confirmed" string="Подтверждённые" domain="[('state','=','confirmed')]"/>
+                <filter name="sent" string="Отправленные" domain="[('state','=','sent')]"/>
+                <filter name="not_sent_email" string="Не отправлены по email" domain="[('email_sent','=',False),('state','not in',['draft','cancel'])]"/>
+                <filter name="not_sbis" string="Не выгружены в СБИС" domain="[('sbis_exported','=',False),('state','not in',['draft','cancel'])]"/>
+                <separator/>
+                <filter name="current_month" string="Текущий месяц"
+                        domain="[('date','&gt;=', (context_today()).strftime('%Y-%m-01')),('date','&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Группировать по">
+                    <filter name="group_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Статус" context="{'group_by': 'state'}"/>
+                    <filter name="group_month" string="Месяц" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_jkh_service_act" model="ir.actions.act_window">
+        <field name="name">Реализация услуг</field>
+        <field name="res_model">jkh.service.act</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_jkh_service_act_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Создайте первый акт реализации услуг
+            </p>
+            <p>
+                Аналог документа "Реализация товаров и услуг" из 1С
+            </p>
+        </field>
+    </record>
+
+</odoo>

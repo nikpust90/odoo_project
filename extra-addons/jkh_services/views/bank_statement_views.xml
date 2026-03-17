@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Форма банковской выписки -->
+    <record id="view_jkh_bank_statement_form" model="ir.ui.view">
+        <field name="name">jkh.bank.statement.form</field>
+        <field name="model">jkh.bank.statement</field>
+        <field name="arch" type="xml">
+            <form string="Банковская выписка">
+                <header>
+                    <button name="action_import_wizard" string="Импортировать файл" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_post" string="Провести" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Основное">
+                            <field name="date"/>
+                            <field name="journal_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="imported_file" readonly="1"/>
+                        </group>
+                        <group string="Остатки">
+                            <field name="balance_start"/>
+                            <field name="total_debit" readonly="1"/>
+                            <field name="total_credit" readonly="1"/>
+                            <field name="balance_end" readonly="1"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Операции" name="lines">
+                            <field name="line_ids" widget="one2many">
+                                <tree editable="bottom"
+                                      decoration-warning="is_matched == False"
+                                      decoration-success="is_matched == True">
+                                    <field name="date"/>
+                                    <field name="payment_order_number" optional="hide"/>
+                                    <field name="name"/>
+                                    <field name="partner_inn"/>
+                                    <field name="partner_id"/>
+                                    <field name="partner_account" optional="hide"/>
+                                    <field name="amount"/>
+                                    <field name="ref" optional="hide"/>
+                                    <field name="is_matched" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Список выписок -->
+    <record id="view_jkh_bank_statement_list" model="ir.ui.view">
+        <field name="name">jkh.bank.statement.list</field>
+        <field name="model">jkh.bank.statement</field>
+        <field name="arch" type="xml">
+            <list string="Банковские выписки">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="journal_id"/>
+                <field name="balance_start"/>
+                <field name="total_debit" string="Приход"/>
+                <field name="total_credit" string="Расход"/>
+                <field name="balance_end"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'posted'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_jkh_bank_statement" model="ir.actions.act_window">
+        <field name="name">Банковские выписки</field>
+        <field name="res_model">jkh.bank.statement</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Создайте или импортируйте банковскую выписку
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Корневое меню ЖКХ -->
+    <menuitem id="menu_jkh_root"
+              name="ЖКХ Учёт"
+              sequence="80"
+              web_icon="jkh_services,static/description/icon.png"/>
+
+    <!-- Раздел: Реализация -->
+    <menuitem id="menu_jkh_sales"
+              name="Реализация"
+              parent="menu_jkh_root"
+              sequence="10"/>
+
+    <menuitem id="menu_jkh_service_acts"
+              name="Документы реализации"
+              parent="menu_jkh_sales"
+              action="action_jkh_service_act"
+              sequence="10"/>
+
+    <menuitem id="menu_jkh_reconciliation"
+              name="Акты сверки"
+              parent="menu_jkh_sales"
+              action="action_jkh_reconciliation_act"
+              sequence="20"/>
+
+    <!-- Раздел: Банк -->
+    <menuitem id="menu_jkh_bank"
+              name="Банк"
+              parent="menu_jkh_root"
+              sequence="20"/>
+
+    <menuitem id="menu_jkh_bank_statements"
+              name="Банковские выписки"
+              parent="menu_jkh_bank"
+              action="action_jkh_bank_statement"
+              sequence="10"/>
+
+    <!-- Раздел: Справочники -->
+    <menuitem id="menu_jkh_dict"
+              name="Справочники"
+              parent="menu_jkh_root"
+              sequence="90"/>
+
+    <menuitem id="menu_jkh_partners"
+              name="Контрагенты"
+              parent="menu_jkh_dict"
+              action="contacts.action_contacts"
+              sequence="10"/>
+
+    <menuitem id="menu_jkh_products"
+              name="Виды услуг"
+              parent="menu_jkh_dict"
+              action="product.product_template_action_all"
+              sequence="20"/>
+
+</odoo>

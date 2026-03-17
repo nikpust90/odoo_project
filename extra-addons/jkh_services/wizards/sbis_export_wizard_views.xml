@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_jkh_sbis_export_wizard_form" model="ir.ui.view">
+        <field name="name">jkh.sbis.export.wizard.form</field>
+        <field name="model">jkh.sbis.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Экспорт в СБИС XML (УПД)">
+                <group invisible="state == 'done'">
+                    <field name="act_ids" widget="many2many_tags"/>
+                    <field name="export_format"/>
+                    <field name="function_type"/>
+                </group>
+                <group string="Скачать файл" invisible="state != 'done'">
+                    <div class="alert alert-success" role="alert">
+                        <strong>Экспорт выполнен успешно!</strong>
+                        Скачайте XML файл и загрузите его в СБИС.
+                    </div>
+                    <field name="xml_file" filename="xml_filename" widget="binary"
+                           string="XML файл для СБИС"/>
+                    <field name="xml_filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_export" string="Экспортировать" type="object"
+                            class="btn-primary" invisible="state == 'done'"/>
+                    <button string="Закрыть" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

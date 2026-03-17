@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jkh_service_act_user,jkh.service.act user,model_jkh_service_act,base.group_user,1,1,1,0
+access_jkh_service_act_manager,jkh.service.act manager,model_jkh_service_act,base.group_system,1,1,1,1
+access_jkh_service_act_line_user,jkh.service.act.line user,model_jkh_service_act_line,base.group_user,1,1,1,0
+access_jkh_service_act_line_manager,jkh.service.act.line manager,model_jkh_service_act_line,base.group_system,1,1,1,1
+access_jkh_reconciliation_act_user,jkh.reconciliation.act user,model_jkh_reconciliation_act,base.group_user,1,1,1,0
+access_jkh_reconciliation_act_manager,jkh.reconciliation.act manager,model_jkh_reconciliation_act,base.group_system,1,1,1,1
+access_jkh_reconciliation_act_line_user,jkh.reconciliation.act.line user,model_jkh_reconciliation_act_line,base.group_user,1,1,1,0
+access_jkh_reconciliation_act_line_manager,jkh.reconciliation.act.line manager,model_jkh_reconciliation_act_line,base.group_system,1,1,1,1
+access_jkh_bank_statement_user,jkh.bank.statement user,model_jkh_bank_statement,base.group_user,1,1,1,0
+access_jkh_bank_statement_manager,jkh.bank.statement manager,model_jkh_bank_statement,base.group_system,1,1,1,1
+access_jkh_bank_statement_line_user,jkh.bank.statement.line user,model_jkh_bank_statement_line,base.group_user,1,1,1,0
+access_jkh_bank_statement_line_manager,jkh.bank.statement.line manager,model_jkh_bank_statement_line,base.group_system,1,1,1,1
+access_jkh_send_act_wizard,jkh.send.act.wizard,model_jkh_send_act_wizard,base.group_user,1,1,1,1
+access_jkh_sbis_export_wizard,jkh.sbis.export.wizard,model_jkh_sbis_export_wizard,base.group_user,1,1,1,1
+access_jkh_bank_import_wizard,jkh.bank.import.wizard,model_jkh_bank_import_wizard,base.group_user,1,1,1,1

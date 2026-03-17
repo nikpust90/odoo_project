@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Действие отчёта -->
+    <record id="action_report_service_act" model="ir.actions.report">
+        <field name="name">Акт выполненных работ</field>
+        <field name="model">jkh.service.act</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">jkh_services.report_service_act_template</field>
+        <field name="report_file">jkh_services.report_service_act_template</field>
+        <field name="print_report_name">'АКТ_' + object.name.replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_jkh_service_act"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Шаблон отчёта -->
+    <template id="report_service_act_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Заголовок -->
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <h3><strong>АКТ № <t t-esc="o.name"/> от <t t-esc="o.date" t-options='{"widget": "date"}'/></strong></h3>
+                                <p>выполненных работ (оказанных услуг)</p>
+                            </div>
+                        </div>
+
+                        <!-- Стороны -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>Исполнитель:</strong><br/>
+                                <t t-esc="o.company_id.name"/><br/>
+                                ИНН: <t t-esc="o.company_id.vat or ''"/><br/>
+                                <t t-esc="o.company_id.partner_id.street or ''"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Заказчик:</strong><br/>
+                                <t t-esc="o.partner_id.name"/><br/>
+                                ИНН: <t t-esc="o.partner_id.vat or ''"/><br/>
+                                <t t-esc="o.partner_id.street or ''"/>
+                            </div>
+                        </div>
+
+                        <!-- Договор и период -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <p>
+                                    Основание: Договор № <t t-esc="o.contract_number or 'б/н'"/>
+                                    <t t-if="o.contract_date"> от <t t-esc="o.contract_date" t-options='{"widget": "date"}'/></t>
+                                </p>
+                                <p>
+                                    Период оказания услуг: с
+                                    <t t-esc="o.period_from" t-options='{"widget": "date"}'/> по
+                                    <t t-esc="o.period_to" t-options='{"widget": "date"}'/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Таблица услуг -->
+                        <table class="table table-bordered table-sm" style="font-size: 11px;">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th class="text-center" style="width: 4%">№</th>
+                                    <th>Наименование работ (услуг)</th>
+                                    <th class="text-center" style="width: 6%">Ед.</th>
+                                    <th class="text-right" style="width: 8%">Кол-во</th>
+                                    <th class="text-right" style="width: 10%">Цена</th>
+                                    <th class="text-right" style="width: 12%">Сумма без НДС</th>
+                                    <th class="text-right" style="width: 8%">НДС %</th>
+                                    <th class="text-right" style="width: 10%">Сумма НДС</th>
+                                    <th class="text-right" style="width: 12%">Итого с НДС</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr>
+                                        <td class="text-center"><t t-esc="line_index + 1"/></td>
+                                        <td><t t-esc="line.name"/></td>
+                                        <td class="text-center">
+                                            <t t-if="line.uom_id"><t t-esc="line.uom_id.name"/></t>
+                                        </td>
+                                        <td class="text-right"><t t-esc="line.quantity"/></td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_unit" t-options='{"widget": "float", "precision": 2}'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-if="line.tax_ids">
+                                                <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
+                                            </t>
+                                            <t t-else="">Без НДС</t>
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-esc="line.price_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="text-right"><strong>Итого:</strong></td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <t t-esc="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </strong>
+                                    </td>
+                                    <td></td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <t t-esc="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <t t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Итоговая сумма прописью (заглушка) -->
+                        <p class="mt-2">
+                            Всего оказано услуг на сумму:
+                            <strong>
+                                <t t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </strong>
+                        </p>
+
+                        <t t-if="o.note">
+                            <p><em><t t-esc="o.note"/></em></p>
+                        </t>
+
+                        <!-- Подписи -->
+                        <div class="row mt-5">
+                            <div class="col-6">
+                                <p><strong>ИСПОЛНИТЕЛЬ:</strong></p>
+                                <br/><br/>
+                                <p>_________________ / ________________________ /</p>
+                                <p style="font-size: 10px; margin-top: -5px;">
+                                    (подпись) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    (расшифровка подписи)
+                                </p>
+                                <p>М.П.</p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>ЗАКАЗЧИК:</strong></p>
+                                <br/><br/>
+                                <p>_________________ / ________________________ /</p>
+                                <p style="font-size: 10px; margin-top: -5px;">
+                                    (подпись) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    (расшифровка подписи)
+                                </p>
+                                <p>М.П.</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
